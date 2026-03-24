@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form view for moodle.config -->
+    <record id="view_moodle_config_form" model="ir.ui.view">
+        <field name="name">moodle.config.form</field>
+        <field name="model">moodle.config</field>
+        <field name="arch" type="xml">
+            <form string="Moodle Settings">
+                <sheet>
+                    <group string="Moodle LMS Connection">
+                        <field name="moodle_base_url"
+                               placeholder="http://10.0.0.5"/>
+                        <field name="moodle_token"
+                               password="True"
+                               placeholder="paste your Moodle web services token"/>
+                    </group>
+                    <group string="Course IDs">
+                        <div colspan="2" class="text-muted">
+                            Set the system parameter <strong>moodle.course_ids</strong>
+                            under Settings → Technical → System Parameters.
+                            Enter a single ID (e.g. <code>3</code>) or
+                            multiple comma-separated IDs (e.g. <code>3,7,12</code>).
+                        </div>
+                    </group>
+                    <footer>
+                        <button name="action_test_connection"
+                                string="Test Connection"
+                                type="object"
+                                class="btn-primary"/>
+                        <button special="cancel"
+                                string="Discard"
+                                class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List view for moodle.config -->
+    <record id="view_moodle_config_list" model="ir.ui.view">
+        <field name="name">moodle.config.list</field>
+        <field name="model">moodle.config</field>
+        <field name="arch" type="xml">
+            <list string="Moodle Configurations">
+                <field name="moodle_base_url"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_moodle_config" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">moodle.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ── Compliance Tickets ─────────────────────────────────── -->
+
+    <record id="view_moodle_ticket_list" model="ir.ui.view">
+        <field name="name">moodle.ticket.list</field>
+        <field name="model">moodle.ticket</field>
+        <field name="arch" type="xml">
+            <list string="Compliance Tickets" default_order="create_date desc">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="course_name"/>
+                <field name="priority" widget="priority"/>
+                <field name="state"
+                    decoration-success="state == 'resolved'"
+                    decoration-info="state == 'in_progress'"
+                    decoration-danger="state == 'open'"
+                    decoration-muted="state == 'cancelled'"
+                    widget="badge"/>
+                <field name="assigned_to"/>
+                <field name="deadline"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_moodle_ticket_form" model="ir.ui.view">
+        <field name="name">moodle.ticket.form</field>
+        <field name="model">moodle.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Ticket">
+                <header>
+                    <button name="action_set_in_progress"
+                            string="In Progress"
+                            type="object"
+                            invisible="state != 'open'"
+                            class="btn-primary"/>
+                    <button name="action_set_resolved"
+                            string="Mark Resolved"
+                            type="object"
+                            invisible="state not in ['open','in_progress']"
+                            class="btn-primary"/>
+                    <button name="action_reopen"
+                            string="Reopen"
+                            type="object"
+                            invisible="state not in ['resolved','cancelled']"/>
+                    <button name="action_set_cancelled"
+                            string="Cancel"
+                            type="object"
+                            invisible="state in ['resolved','cancelled']"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="open,in_progress,resolved"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="employee_id"/>
+                            <field name="completion_id"/>
+                            <field name="course_name"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                            <field name="assigned_to"/>
+                            <field name="deadline"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Describe the compliance issue…"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_moodle_ticket_search" model="ir.ui.view">
+        <field name="name">moodle.ticket.search</field>
+        <field name="model">moodle.ticket</field>
+        <field name="arch" type="xml">
+            <search string="Search Tickets">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="course_name"/>
+                <filter string="Open" name="open" domain="[('state','=','open')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state','=','in_progress')]"/>
+                <filter string="Resolved" name="resolved" domain="[('state','=','resolved')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Course" name="group_course" context="{'group_by': 'course_name'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_moodle_ticket" model="ir.actions.act_window">
+        <field name="name">Compliance Tickets</field>
+        <field name="res_model">moodle.ticket</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_moodle_ticket_search"/>
+    </record>
+
+    <!-- ── Menus ──────────────────────────────────────────────── -->
+
+    <menuitem id="menu_moodle_root"
+              name="Moodle Training"
+              sequence="95"/>
+
+    <menuitem id="menu_moodle_settings"
+              name="Settings"
+              parent="menu_moodle_root"
+              action="action_moodle_config"
+              sequence="10"/>
+
+    <menuitem id="menu_moodle_tickets"
+              name="Compliance Tickets"
+              parent="menu_moodle_root"
+              action="action_moodle_ticket"
+              sequence="40"/>
+
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Hourly sync of Moodle completion records -->
+        <record id="ir_cron_moodle_sync" model="ir.cron">
+            <field name="name">Moodle Training: Sync Completion Records</field>
+            <field name="model_id" ref="model_moodle_completion"/>
+            <field name="state">code</field>
+            <field name="code">model._sync_moodle_completions()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <field name="doall">False</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_moodle_config_manager,moodle.config manager,model_moodle_config,base.group_system,1,1,1,1
+access_moodle_completion_user,moodle.completion user,model_moodle_completion,base.group_user,1,0,0,0
+access_moodle_completion_manager,moodle.completion manager,model_moodle_completion,base.group_system,1,1,1,1
+access_moodle_ticket_user,moodle.ticket user,model_moodle_ticket,base.group_user,1,0,0,0
+access_moodle_ticket_manager,moodle.ticket manager,model_moodle_ticket,base.group_system,1,1,1,1

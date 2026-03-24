@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List view -->
+    <record id="view_moodle_completion_list" model="ir.ui.view">
+        <field name="name">moodle.completion.list</field>
+        <field name="model">moodle.completion</field>
+        <field name="arch" type="xml">
+            <list string="Completion Records" default_order="completion_date desc">
+                <field name="employee_id" optional="show"/>
+                <field name="employee_name"/>
+                <field name="moodle_email"/>
+                <field name="course_name"/>
+                <field name="status"
+                    decoration-success="status == 'completed'"
+                    decoration-warning="status == 'in_progress'"
+                    decoration-muted="status == 'not_started'"
+                    widget="badge"/>
+                <field name="completed" optional="show"/>
+                <field name="completion_date" optional="show"/>
+                <field name="ticket_count" string="Tickets" optional="show"/>
+                <field name="last_synced" optional="hide"/>
+                <button name="action_create_ticket"
+                        string="Raise Ticket"
+                        type="object"
+                        icon="fa-exclamation-circle"
+                        invisible="completed"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_moodle_completion_form" model="ir.ui.view">
+        <field name="name">moodle.completion.form</field>
+        <field name="model">moodle.completion</field>
+        <field name="arch" type="xml">
+            <form string="Completion Record">
+                <header>
+                    <button name="action_create_ticket"
+                            string="Raise Compliance Ticket"
+                            type="object"
+                            invisible="completed"
+                            class="btn-warning"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_tickets"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-ticket"
+                                invisible="ticket_count == 0">
+                            <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group string="Employee">
+                            <field name="employee_id"/>
+                            <field name="employee_name"/>
+                            <field name="moodle_email"/>
+                            <field name="moodle_user_id"/>
+                        </group>
+                        <group string="Course">
+                            <field name="course_name"/>
+                            <field name="course_id"/>
+                            <field name="status" widget="badge"/>
+                            <field name="completed"/>
+                            <field name="completion_date"/>
+                            <field name="last_synced"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_moodle_completion_search" model="ir.ui.view">
+        <field name="name">moodle.completion.search</field>
+        <field name="model">moodle.completion</field>
+        <field name="arch" type="xml">
+            <search string="Search Completions">
+                <field name="employee_name"/>
+                <field name="moodle_email"/>
+                <field name="course_name"/>
+                <field name="employee_id"/>
+                <filter string="Completed" name="completed"
+                        domain="[('status','=','completed')]"/>
+                <filter string="In Progress" name="in_progress"
+                        domain="[('status','=','in_progress')]"/>
+                <filter string="Not Started" name="not_started"
+                        domain="[('status','=','not_started')]"/>
+                <filter string="No Employee Matched" name="no_employee"
+                        domain="[('employee_id','=',False)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Course" name="group_course"
+                            context="{'group_by': 'course_name'}"/>
+                    <filter string="Status" name="group_status"
+                            context="{'group_by': 'status'}"/>
+                    <filter string="Employee" name="group_employee"
+                            context="{'group_by': 'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_moodle_completion" model="ir.actions.act_window">
+        <field name="name">Completion Records</field>
+        <field name="res_model">moodle.completion</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_moodle_completion_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No completion records yet.</p>
+            <p>Use <strong>Moodle Training → Sync Now</strong> to pull the latest
+               completion data from Moodle.</p>
+        </field>
+    </record>
+
+    <!-- Sync Now server action -->
+    <record id="action_moodle_sync_now" model="ir.actions.server">
+        <field name="name">Sync Now</field>
+        <field name="model_id" ref="model_moodle_completion"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_sync_now()</field>
+    </record>
+
+    <!-- ── Menus ──────────────────────────────────────────────── -->
+
+    <menuitem id="menu_moodle_sync_now"
+              name="Sync Now"
+              parent="moodle_config_views.menu_moodle_root"
+              action="action_moodle_sync_now"
+              sequence="20"/>
+
+    <menuitem id="menu_moodle_completion_records"
+              name="Completion Records"
+              parent="moodle_config_views.menu_moodle_root"
+              action="action_moodle_completion"
+              sequence="30"/>
+
+</odoo>
